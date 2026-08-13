@@ -1,0 +1,62 @@
+channel:
+  niche: AI & Tech News
+  language: en
+  channel_name: AI Pulse Daily
+  voice: en-US-ChristopherNeural
+  auto_upload: false
+  publish_in_future_hours: 0
+
+video:
+  format: vertical
+  width: 1080
+  height: 1920
+  max_duration_seconds: 75
+  subtitles: true
+  background_style: jarvis
+
+llm:
+  provider: openai
+  base_url: ""
+  api_key_env: OPENAI_API_KEY
+  model: gpt-4o-mini
+
+tts:
+  provider: edge
+  voice: en-US-ChristopherNeural
+  rate: "+10%"
+  elevenlabs_api_key_env: ELEVENLABS_API_KEY
+  elevenlabs_voice_id: ""
+
+voice:
+  enabled: false
+  stt: vosk
+  wake_word: jarvis
+  response_voice: en-US-GuyNeural
+  push_to_talk_seconds: 8
+  auto_voice_response: true
+
+autopilot:
+  enabled: false
+  interval_hours: 6
+  max_per_day: 8
+  upload: false
+  format: vertical
+  topic: ""
+
+youtube:
+  client_secrets: config/client_secret.json
+  token_path: config/youtube_token.json
+  category_id: "28"
+
+trends:
+  rss_feeds:
+    - https://techcrunch.com/category/artificial-intelligence/feed/
+    - https://www.theverge.com/rss/index.xml
+    - https://venturebeat.com/category/ai/feed/
+    - https://blog.google/technology/ai/rss/
+  yt_search_results: 6
+  min_recency_hours: 72
+  keyword_bonus: 15
+
+output:
+  dir: output

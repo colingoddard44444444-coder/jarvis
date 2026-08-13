@@ -24,6 +24,7 @@ class VideoAgent(Agent):
         ensure_tools(["ffmpeg", "ffprobe"])
 
         params = ctx.get("params", {})
+        style = params.get("style") or orch.cfg.get("video", "background_style", default="tech")
         vfmt = params.get("format") or orch.cfg.get("video", "format", default="vertical")
         if vfmt == "horizontal":
             w, h = 1920, 1080
@@ -46,11 +47,11 @@ class VideoAgent(Agent):
             dur = max(0.6, t["duration"])
             bg = os.path.join(seg_dir, f"bg_{i:03d}.png")
             seg = os.path.join(seg_dir, f"seg_{i:03d}.mp4")
-            media.make_background((w, h), keyword, i).save(bg)
+            media.make_background((w, h), keyword, i, style=style).save(bg)
             self._ken_burns(bg, seg, dur, w, h)
             if orch.cfg.get("video", "subtitles", default=True):
                 sub = os.path.join(sub_dir, f"sub_{i:03d}.png")
-                media.make_subtitle_frame((w, h), t["text"]).save(sub)
+                media.make_subtitle_frame((w, h), t["text"], style=style).save(sub)
                 sub_paths.append((sub, cumulative, cumulative + dur))
             seg_paths.append(seg)
             cumulative += dur

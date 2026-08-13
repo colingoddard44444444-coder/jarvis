@@ -57,6 +57,31 @@ source ~/.bashrc
    ```
 6. Re-run the pipeline with **Auto-upload** ticked (uploads as private).
 
+## 5. Voice control (optional)
+
+```bash
+pip install vosk            # offline speech-to-text (~40 MB model auto-downloads)
+```
+
+Then in the app: the **Voice Control** panel has **HOLD TO TALK** (hold, speak,
+release — Jarvis acts on your command) and a **Wake word** toggle so you can
+just say "Jarvis" from across the room.
+
+Try: *"make a video about AI"*, *"upload to YouTube"*, *"what's the status"*,
+*"turn on autopilot"*.
+
+## 6. Autopilot (autonomous mode)
+
+The **Autopilot** panel makes the whole thing self-running:
+
+1. Toggle **Autonomous mode** ON.
+2. Set **Every (h)** — how often to produce a new video (default 6).
+3. Jarvis researches the day's top AI/tech trend, writes the script, renders the
+   video and (if **auto-upload** is on and YouTube is authorized) posts it.
+
+The `config/config.yaml` → `autopilot` section also supports `max_per_day`
+(a daily cap) and a fixed `topic` (leave `""` for auto-trending).
+
 ## Need help?
 
 ```bash

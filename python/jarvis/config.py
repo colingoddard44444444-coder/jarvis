@@ -37,7 +37,7 @@ DEFAULTS: dict[str, Any] = {
         "height": 1920,
         "max_duration_seconds": 75,
         "subtitles": True,
-        "background_style": "tech",
+        "background_style": "jarvis",
     },
     "llm": {
         "provider": "openai",
@@ -67,6 +67,22 @@ DEFAULTS: dict[str, Any] = {
         "yt_search_results": 6,
         "min_recency_hours": 72,
         "keyword_bonus": 15,
+    },
+    "voice": {
+        "enabled": False,
+        "stt": "vosk",
+        "wake_word": "jarvis",
+        "response_voice": "en-US-GuyNeural",
+        "push_to_talk_seconds": 8,
+        "auto_voice_response": True,
+    },
+    "autopilot": {
+        "enabled": False,
+        "interval_hours": 6,
+        "max_per_day": 8,
+        "upload": False,
+        "format": "vertical",
+        "topic": "",
     },
     "output": {"dir": "output"},
 }

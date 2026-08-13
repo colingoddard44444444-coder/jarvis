@@ -86,6 +86,7 @@ function params() {
   return {
     topic: $("topic").value.trim(),
     format: $("format").value,
+    style: $("style").value,
     schedule_hours: parseInt($("schedule").value, 10) || 0,
     upload: $("upload").checked,
   };
@@ -157,6 +158,8 @@ window.jarvis.onEvent(({ event, data }) => {
     case "backend_up":
       setPill(true, "Backend: connected");
       refreshOutputs();
+      refreshVoice();
+      refreshAutopilot();
       break;
     case "backend_down":
       setPill(false, "Backend: offline");
@@ -201,8 +204,128 @@ window.jarvis.onEvent(({ event, data }) => {
     case "outputs_updated":
       refreshOutputs();
       break;
+    case "voice_event":
+      handleVoiceEvent(data);
+      break;
+    case "autopilot_event":
+      handleAutopilotEvent(data);
+      break;
   }
 });
+
+// ---- voice control --------------------------------------------------------
+let voiceListening = false;
+
+function setTranscript(text, cls) {
+  const t = $("transcript");
+  t.textContent = text;
+  t.style.color = cls ? getComputedStyle(document.documentElement).getPropertyValue(cls).trim() : "";
+}
+
+function handleVoiceEvent(data) {
+  const mic = $("mic-btn");
+  switch (data.type) {
+    case "listening":
+      voiceListening = data.on === true;
+      mic.classList.toggle("recording", voiceListening);
+      mic.textContent = voiceListening ? "LISTENING…" : "HOLD TO TALK";
+      break;
+    case "heard":
+      setTranscript(`You said: "${data.text}"`);
+      break;
+    case "saying":
+      setTranscript(`Jarvis: "${data.text}"`);
+      break;
+    case "action":
+      log(`Voice command → ${data.action}${data.params && data.params.topic ? `: ${data.params.topic}` : ""}`, "warn");
+      break;
+    case "wake":
+      log(data.on ? "Wake word armed — say \"" + (window.jarvis.wakeWord || "jarvis") + "\"" : "Wake word off.", "warn");
+      break;
+    case "error":
+      log(`Voice: ${data.message}`, "error");
+      setTranscript(`Voice error: ${data.message}`);
+      break;
+    case "no_player":
+      setTranscript(`Jarvis: "${data.text}" (no audio player found)`);
+      break;
+    case "reply":
+      setTranscript(`Jarvis: "${data.text}"`);
+      break;
+  }
+}
+
+async function refreshVoice() {
+  try {
+    const r = await window.jarvis.rpc("voice_status");
+    const s = r.result || {};
+    const pill = $("voice-pill");
+    if (!s.available) {
+      pill.className = "pill bad";
+      pill.textContent = "mic: n/a";
+    } else {
+      pill.className = s.wake_on ? "pill on" : "pill ok";
+      pill.textContent = s.wake_on ? "voice: wake on" : "voice: ready";
+    }
+    window.jarvis.wakeWord = s.wake_word || "jarvis";
+  } catch (e) {
+    log(`Voice status: ${e.message}`, "warn");
+  }
+}
+
+// ---- autopilot ------------------------------------------------------------
+async function refreshAutopilot() {
+  try {
+    const r = await window.jarvis.rpc("autopilot_status");
+    renderAutopilot(r.result || {});
+  } catch (e) {
+    log(`Autopilot status: ${e.message}`, "warn");
+  }
+}
+
+function renderAutopilot(s) {
+  const pill = $("ap-pill");
+  pill.className = `pill ${s.enabled ? "on" : ""}`;
+  pill.textContent = s.enabled ? "autopilot: on" : "autopilot: off";
+  $("ap-toggle").checked = !!s.enabled;
+  if (s.interval_hours) $("ap-interval").value = s.interval_hours;
+  const st = [];
+  if (s.enabled) {
+    st.push(`next run: ${s.next_run_at || "soon"}`);
+    st.push(`runs today: ${s.runs_today || 0}/${s.max_per_day}`);
+    if (s.upload) st.push("auto-upload: ON");
+  } else {
+    st.push("Autopilot off.");
+  }
+  if (s.last_run_at) st.push(`last run: ${s.last_run_at} (${s.last_result || "—"})`);
+  $("ap-status").textContent = st.join("  ·  ");
+}
+
+function handleAutopilotEvent(data) {
+  switch (data.type) {
+    case "started":
+      log("Autopilot engaged.", "success");
+      refreshAutopilot();
+      break;
+    case "stopped":
+      log("Autopilot disengaged.", "warn");
+      refreshAutopilot();
+      break;
+    case "run_started":
+      log(`Autopilot: starting production ${data.params.topic ? `on "${data.params.topic}"` : "(auto-trend)"}`, "warn");
+      setRunning(true);
+      break;
+    case "run_done":
+      log("Autopilot: production complete.", "success");
+      refreshOutputs();
+      refreshAutopilot();
+      break;
+    case "run_error":
+      log(`Autopilot: run failed — ${data.error}`, "error");
+      refreshAutopilot();
+      break;
+  }
+}
 
 function openAuthDialog(message) {
   $("auth-message").textContent = message + "\n\nJarvis can copy the file into config/ for you.";
@@ -226,6 +349,33 @@ $("run-btn").onclick = () => {
 $("cancel-btn").onclick = () => window.jarvis.rpc("cancel", {});
 $("clear-console").onclick = () => ($("console").innerHTML = "");
 $("refresh-outputs").onclick = refreshOutputs;
+
+// voice buttons
+const micBtn = $("mic-btn");
+micBtn.addEventListener("mousedown", () => window.jarvis.rpc("voice_listen", { on: true }));
+micBtn.addEventListener("mouseup", () => window.jarvis.rpc("voice_listen", { on: false }));
+micBtn.addEventListener("mouseleave", () => {
+  if (voiceListening) window.jarvis.rpc("voice_listen", { on: false });
+});
+$("wake-toggle").onchange = (e) => {
+  window.jarvis.rpc("voice_wake", { on: e.target.checked }).then(refreshVoice);
+};
+
+// autopilot buttons
+$("ap-toggle").onchange = (e) => {
+  window.jarvis.rpc(e.target.checked ? "autopilot_start" : "autopilot_stop", {}).then(refreshAutopilot);
+};
+$("ap-interval").onchange = (e) => {
+  const hours = Math.max(1, parseInt(e.target.value, 10) || 6);
+  window.jarvis.rpc("save_config", { updates: { autopilot: { interval_hours: hours } } })
+    .then(() => { e.target.value = hours; log(`Autopilot interval set to ${hours}h.`, "warn"); refreshAutopilot(); })
+    .catch((err) => log(`Could not save interval: ${err.message}`, "error"));
+};
+$("ap-now-btn").onclick = () => {
+  log("Starting production now…", "warn");
+  setRunning(true);
+  runPipeline();
+};
 
 // ---- init -----------------------------------------------------------------
 buildAgents();

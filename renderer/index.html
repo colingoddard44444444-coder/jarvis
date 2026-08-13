@@ -11,6 +11,8 @@
     <div class="brand"><span class="dot"></span> JARVIS</div>
     <div class="tagline">Autonomous YouTube Video Factory</div>
     <div class="spacer"></div>
+    <div id="voice-pill" class="pill">voice: off</div>
+    <div id="ap-pill" class="pill">autopilot: off</div>
     <div id="backend-pill" class="pill ok">Backend: connecting…</div>
   </header>
 
@@ -26,6 +28,13 @@
             <select id="format">
               <option value="vertical">Vertical (Shorts)</option>
               <option value="horizontal">Horizontal</option>
+            </select>
+          </div>
+          <div>
+            <label for="style">Visual style</label>
+            <select id="style">
+              <option value="jarvis">JARVIS HUD</option>
+              <option value="tech">Tech Neon</option>
             </select>
           </div>
           <div>
@@ -45,6 +54,34 @@
       <div class="panel">
         <h2>Agents</h2>
         <div id="agents"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Voice Control</h2>
+          <span id="voice-pill" class="pill">off</span>
+        </div>
+        <div class="voice-row">
+          <button id="mic-btn" class="mic">HOLD TO TALK</button>
+          <label class="switch-line"><input id="wake-toggle" type="checkbox" /> Wake word</label>
+        </div>
+        <div id="transcript" class="transcript">Hold the mic button and speak. Jarvis will act on your commands.</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Autopilot</h2>
+          <span id="ap-pill" class="pill">off</span>
+        </div>
+        <div class="voice-row">
+          <label class="switch-line"><input id="ap-toggle" type="checkbox" /> Autonomous mode</label>
+          <div>
+            <label for="ap-interval">Every (h)</label>
+            <input id="ap-interval" type="number" min="1" value="6" style="width:80px" />
+          </div>
+          <button id="ap-now-btn" class="ghost">Run now</button>
+        </div>
+        <div id="ap-status" class="transcript">Autopilot off. It will research trends, produce videos and keep your channel stocked.</div>
       </div>
     </section>
 

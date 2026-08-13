@@ -12,13 +12,21 @@ import sys
 import threading
 import traceback
 
+from jarvis.autopilot import Autopilot
 from jarvis.orchestrator import Orchestrator
+from jarvis.voice import VoiceController
 
 
 class Server:
     def __init__(self):
         self._lock = threading.Lock()
         self.orch = Orchestrator(emit=self.emit_event)
+        self.autopilot = Autopilot(self.orch, emit=self.emit_event)
+        self.voice = VoiceController(self.orch, self.autopilot, emit=self.emit_event)
+        if self.orch.cfg.get("autopilot", "enabled", default=False):
+            self.autopilot.start()
+        if self.orch.cfg.get("voice", "enabled", default=False):
+            self.voice.toggle_wake(True)
 
     def emit_event(self, event: str, data: dict) -> None:
         with self._lock:
@@ -50,6 +58,23 @@ class Server:
                     result = self.orch.save_config(params.get("updates") or {})
                 elif method == "list_outputs":
                     result = self.orch.list_outputs()
+                elif method == "voice_listen":
+                    result = self.voice.push_to_talk_start() if params.get("on") else self.voice.push_to_talk_stop()
+                elif method == "voice_wake":
+                    result = self.voice.toggle_wake(bool(params.get("on")))
+                elif method == "voice_say":
+                    self.voice.say(params.get("text") or "")
+                    result = {"ok": True}
+                elif method == "voice_status":
+                    result = self.voice.status()
+                elif method == "autopilot_start":
+                    self.autopilot.start()
+                    result = self.autopilot.status()
+                elif method == "autopilot_stop":
+                    self.autopilot.stop()
+                    result = self.autopilot.status()
+                elif method == "autopilot_status":
+                    result = self.autopilot.status()
                 elif method == "health":
                     result = {"ok": True}
                 else:
