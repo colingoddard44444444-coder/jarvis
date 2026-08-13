@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:" />
+  <title>Jarvis</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="dot"></span> JARVIS</div>
+    <div class="tagline">Autonomous YouTube Video Factory</div>
+    <div class="spacer"></div>
+    <div id="backend-pill" class="pill ok">Backend: connecting…</div>
+  </header>
+
+  <main>
+    <section class="left">
+      <div class="panel">
+        <h2>New Video</h2>
+        <label for="topic">Topic (leave empty to auto-pick from trends)</label>
+        <input id="topic" type="text" placeholder="e.g. OpenAI releases GPT-5…" />
+        <div class="row">
+          <div>
+            <label for="format">Format</label>
+            <select id="format">
+              <option value="vertical">Vertical (Shorts)</option>
+              <option value="horizontal">Horizontal</option>
+            </select>
+          </div>
+          <div>
+            <label for="schedule">Publish in (h)</label>
+            <input id="schedule" type="number" min="0" value="0" />
+          </div>
+          <div class="check">
+            <label><input id="upload" type="checkbox" /> Auto-upload to YouTube</label>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="run-btn" class="primary">▶ Run Full Pipeline</button>
+          <button id="cancel-btn" class="danger" disabled>Cancel</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Agents</h2>
+        <div id="agents"></div>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="panel console-panel">
+        <div class="panel-head">
+          <h2>Console</h2>
+          <button id="clear-console" class="ghost">Clear</button>
+        </div>
+        <div id="console"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Outputs</h2>
+          <button id="refresh-outputs" class="ghost">Refresh</button>
+        </div>
+        <div id="outputs"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="auth-dialog">
+    <form method="dialog">
+      <h2>YouTube Authorization Required</h2>
+      <p id="auth-message"></p>
+      <button id="auth-btn" class="primary" value="default">Select client_secret.json…</button>
+      <button value="cancel">Close</button>
+    </form>
+  </dialog>
+
+  <div id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

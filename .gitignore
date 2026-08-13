@@ -1,0 +1,9 @@
+node_modules/
+.venv/
+python/.venv/
+output/
+config/client_secret.json
+config/youtube_token.json
+__pycache__/
+*.pyc
+.DS_Store

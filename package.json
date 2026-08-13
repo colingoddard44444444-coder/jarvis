@@ -1,0 +1,16 @@
+{
+  "name": "jarvis",
+  "productName": "Jarvis",
+  "version": "0.1.0",
+  "description": "Desktop AI agent hub for automated YouTube video production",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node scripts/check_env.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}
