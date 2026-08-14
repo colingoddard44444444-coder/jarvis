@@ -87,8 +87,11 @@ The `config/config.yaml` → `autopilot` section also supports `max_per_day`
 The whole backend runs on the phone with a mobile web panel — no desktop needed.
 
 ```bash
-pkg install termux-api       # one time, optional
+pkg install -y git python ffmpeg        # one time, if not installed
+cd ~
+git clone https://github.com/colingoddard44444444-coder/jarvis.git
 cd ~/jarvis
+python3 -m pip install -r python/requirements.txt   # one time
 python3 python/web_server.py
 ```
 
