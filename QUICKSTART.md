@@ -82,6 +82,27 @@ The **Autopilot** panel makes the whole thing self-running:
 The `config/config.yaml` → `autopilot` section also supports `max_per_day`
 (a daily cap) and a fixed `topic` (leave `""` for auto-trending).
 
+## 7. Run Jarvis from your phone (Termux)
+
+The whole backend runs on the phone with a mobile web panel — no desktop needed.
+
+```bash
+pkg install termux-api       # one time, optional
+cd ~/jarvis
+python3 python/web_server.py
+```
+
+Then open `http://127.0.0.1:8077` in your phone's browser (Chrome works best).
+From the panel you can:
+
+- **Tap & Speak** — talk; Jarvis hears you via your browser's mic and replies
+  (try "make a video about AI", "what's the status", "turn on autopilot").
+- Toggle **Autonomous mode** and watch it produce videos on a schedule.
+- Watch finished videos under **Outputs** (tap "watch").
+
+To reach it from another device on your Wi-Fi, run `python3 python/web_server.py 0.0.0.0:8077`
+and open `http://<your-phone-ip>:8077`.
+
 ## Need help?
 
 ```bash
